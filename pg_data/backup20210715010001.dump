@@ -1,0 +1,270 @@
+--
+-- PostgreSQL database cluster dump
+--
+
+SET default_transaction_read_only = off;
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+
+--
+-- Roles
+--
+
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'md53175bce1d3201d16594cebf9d7eb3f9d';
+
+
+
+
+
+
+--
+-- Databases
+--
+
+--
+-- Database "template1" dump
+--
+
+\connect template1
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped by pg_dump version 13.3 (Debian 13.3-1.pgdg100+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "postgres" dump
+--
+
+\connect postgres
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped by pg_dump version 13.3 (Debian 13.3-1.pgdg100+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "snippetbox" dump
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped by pg_dump version 13.3 (Debian 13.3-1.pgdg100+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: snippetbox; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE snippetbox WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
+
+
+ALTER DATABASE snippetbox OWNER TO postgres;
+
+\connect snippetbox
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: snippets; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.snippets (
+    id integer NOT NULL,
+    title character varying(100) NOT NULL,
+    content text NOT NULL,
+    created timestamp without time zone NOT NULL,
+    expires timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.snippets OWNER TO postgres;
+
+--
+-- Name: snippets_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.snippets_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.snippets_id_seq OWNER TO postgres;
+
+--
+-- Name: snippets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.snippets_id_seq OWNED BY public.snippets.id;
+
+
+--
+-- Name: snippets id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.snippets ALTER COLUMN id SET DEFAULT nextval('public.snippets_id_seq'::regclass);
+
+
+--
+-- Data for Name: snippets; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.snippets (id, title, content, created, expires) FROM stdin;
+1	An old silent pond	An old silent pond...\\nA frog jumps into the pond,\\nsplash! Silence again.	2021-07-12 01:55:04.478971	2022-07-12 01:55:04.478971
+2	Over the wintry forest	Over the wintry\\nforest, winds howl in rage\\nwith no leaves to blow.\\n\\n– N	2021-07-12 01:57:07.779516	2022-07-12 01:57:07.779516
+3	First autumn morning	First autumn morning\\nthe mirror I stare into\\nshows my father's face.\\n\\	2021-07-12 01:57:07.782451	2022-07-12 01:57:07.782451
+35	Over the wintry forest	Over the wintry\\nforest, winds howl in rage\\nwith no leaves to blow.\\n\\n– N	2021-07-15 00:25:52.459195	2022-07-15 00:25:52.459195
+36	?	?	2021-07-15 00:27:19.647	2022-07-15 00:27:19.647
+37	?	?	2021-07-15 00:36:58.01861	2022-07-15 00:36:58.01861
+38	asdf	asdf	2021-07-15 00:44:33.90514	2022-07-15 00:44:33.90514
+39	O snail	O snail\\nClimb Moun Fuji,\nBut slowly, slowly!\n\n- Kobayashi xyz	2021-07-15 00:45:42.033194	2022-07-15 00:45:42.033194
+40	O snail	O snail\\nClimb Moun Fuji,\nBut slowly, slowly!\n\n- Kobayashi xyz	2021-07-15 00:48:54.400235	2022-07-15 00:48:54.400235
+41	O snail	O snail\\nClimb Moun Fuji,\nBut slowly, slowly!\n\n- Kobayashi xyz	2021-07-15 00:55:03.775797	2022-07-15 00:55:03.775797
+42	O snail	O snail\\nClimb Moun Fuji,\nBut slowly, slowly!\n\n- Kobayashi xyz	2021-07-15 00:57:21.151281	2021-07-22 02:57:21.150517
+\.
+
+
+--
+-- Name: snippets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.snippets_id_seq', 42, true);
+
+
+--
+-- Name: snippets snippets_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.snippets
+    ADD CONSTRAINT snippets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: idx_snippets_created; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_snippets_created ON public.snippets USING btree (created);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "webshop" dump
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3 (Debian 13.3-1.pgdg100+1)
+-- Dumped by pg_dump version 13.3 (Debian 13.3-1.pgdg100+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: webshop; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE webshop WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
+
+
+ALTER DATABASE webshop OWNER TO postgres;
+
+\connect webshop
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- PostgreSQL database cluster dump complete
+--
+

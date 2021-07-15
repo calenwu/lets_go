@@ -1,0 +1,19 @@
+version: '3.9'
+volumes:
+  pgdata:
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/dev/postgres/Dockerfile
+    restart: always
+    environment:
+      - POSTGRES_DB=webshop
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./pg_data:/pg_data
+    ports:
+      - 5432:5432

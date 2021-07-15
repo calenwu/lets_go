@@ -1,0 +1,1 @@
+0 1 * * * root pg_dumpall -h postgres -U postgres> /pg_data/backup$(date +\%Y\%m\%d\%H\%M\%S).dump
