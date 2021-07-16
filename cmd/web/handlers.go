@@ -3,7 +3,6 @@ package main
 import (
 	"calenwu.com/snippetbox/pkg/models"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,20 +21,30 @@ func (app *application) home(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "Page not found", 404)
 		return
 	}
-	files := []string{
-		"./ui/html/home.page.gohtml",
-		"./ui/html/base.layout.gohtml",
-		"./ui/html/footer.partial.gohtml",
-	}
-	ts, err := template.ParseFiles(files...)
+	s, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.serverError(w, err)
+
+	for _, snippet := range s {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
+
+	//files := []string{
+	//	"./ui/html/home.page.gohtml",
+	//	"./ui/html/base.layout.gohtml",
+	//	"./ui/html/footer.partial.gohtml",
+	//}
+	//ts, err := template.ParseFiles(files...)
+	//if err != nil {
+	//	app.serverError(w, err)
+	//	return
+	//}
+	//err = ts.Execute(w, nil)
+	//if err != nil {
+	//	app.serverError(w, err)
+	//}
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request){
