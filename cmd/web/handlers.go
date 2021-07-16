@@ -1,22 +1,15 @@
 package main
 
 import (
-	"calenwu.com/snippetbox/pkg/models"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
-	"strings"
+
+	"calenwu.com/snippetbox/pkg/models"
 )
 
-type ho struct {
-	name string
-}
-
-func (h *ho) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(strings.Join([]string{"This", h.name}, " ")))
-}
-
-func (app *application) home(w http.ResponseWriter, r *http.Request){
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Page not found", 404)
 		return
@@ -26,28 +19,23 @@ func (app *application) home(w http.ResponseWriter, r *http.Request){
 		app.serverError(w, err)
 		return
 	}
-
-	for _, snippet := range s {
-		fmt.Fprintf(w, "%v\n", snippet)
+	files := []string{
+		"./ui/html/home.page.gohtml",
+		"./ui/html/base.layout.gohtml",
+		"./ui/html/footer.partial.gohtml",
 	}
-
-	//files := []string{
-	//	"./ui/html/home.page.gohtml",
-	//	"./ui/html/base.layout.gohtml",
-	//	"./ui/html/footer.partial.gohtml",
-	//}
-	//ts, err := template.ParseFiles(files...)
-	//if err != nil {
-	//	app.serverError(w, err)
-	//	return
-	//}
-	//err = ts.Execute(w, nil)
-	//if err != nil {
-	//	app.serverError(w, err)
-	//}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = ts.Execute(w, s)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
-func (app *application) showSnippet(w http.ResponseWriter, r *http.Request){
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
@@ -61,10 +49,26 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request){
 		app.serverError(w, err)
 		return
 	}
-	fmt.Fprintf(w, "%v", s)
+	type templateData struct {
+		Snippet *models.Snippet
+	}
+	files := []string {
+		"./ui/html/show.page.gohtml",
+		"./ui/html/base.layout.gohtml",
+		"./ui/html/footer.partial.gohtml",
+	}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = ts.Execute(w, &templateData{s})
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
-func (app *application) createSnippet(w http.ResponseWriter, r *http.Request){
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
 		app.clientError(w, http.StatusMethodNotAllowed)
@@ -81,4 +85,3 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request){
 	}
 	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }
-

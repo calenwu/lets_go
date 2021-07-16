@@ -48,7 +48,7 @@ func main() {
 	defer db.Close()
 	cfg := &Config{}
 	flag.StringVar(&cfg.Addr, "addr", ":4000", "HTTP network address")
-	flag.StringVar(&cfg.StaticDir, "static-dir", "./ui/static", "Path to static assets")
+	flag.StringVar(&cfg.StaticDir, "static", "./ui/static", "Path to static assets")
 	flag.Parse()
 
 	app := &application{
@@ -76,5 +76,15 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+	// Set the maximum number of concurrently open connections. Setting this to
+	// less than or equal to 0 will mean there is no maximum limit. If the maximum
+	// number of open connections is reached and a new connection is needed, Go will
+	// wait until one of the connections is freed and becomes idle. From a
+	// user perspective, this means their HTTP request will hang until a connection
+	// is freed.
+	db.SetMaxOpenConns(95)
+	// Set the maximum number of idle connections in the pool. Setting this
+	// to less than or equal to 0 will mean that no idle connections are retained.
+	db.SetMaxIdleConns(5)
 	return db, nil
 }
