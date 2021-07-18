@@ -6,10 +6,12 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/lib/pq"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 )
+
 const (
 	host     = "127.0.0.1"
 	port     = 5432
@@ -24,9 +26,10 @@ type Config struct {
 }
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *postgres.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *postgres.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -46,15 +49,23 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
+
+
 	cfg := &Config{}
 	flag.StringVar(&cfg.Addr, "addr", ":4000", "HTTP network address")
 	flag.StringVar(&cfg.StaticDir, "static", "./ui/static", "Path to static assets")
 	flag.Parse()
 
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &application{
-		infoLog: infoLog,
+		infoLog:  infoLog,
 		errorLog: errorLog,
 		snippets: &postgres.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{

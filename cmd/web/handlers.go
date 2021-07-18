@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/go-chi/chi"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -20,24 +19,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	files := []string{
-		"./ui/html/home.page.gohtml",
-		"./ui/html/base.layout.gohtml",
-		"./ui/html/footer.partial.gohtml",
+	type templateData struct {
+		Snippets []*models.Snippet
 	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	err = ts.Execute(w, s)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "home.page.gohtml", &templateData{s})
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "snippetId"))
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -53,20 +42,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	type templateData struct {
 		Snippet *models.Snippet
 	}
-	files := []string {
-		"./ui/html/show.page.gohtml",
-		"./ui/html/base.layout.gohtml",
-		"./ui/html/footer.partial.gohtml",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	err = ts.Execute(w, &templateData{s})
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "show.page.gohtml", &templateData{s})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +53,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	title := "O snail"
-	content := "O snail\\nClimb Moun Fuji,\nBut slowly, slowly!\n\n- Kobayashi xyz"
+	content := "O snail\\nClimb Mount Fuji,\nBut slowly, slowly!\n\n- Kobayashi xyz"
 	expires := 7
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
@@ -85,4 +61,8 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+}
+
+func (app *application) createSnippetForm(w  http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "create.page.gohtml", nil)
 }
