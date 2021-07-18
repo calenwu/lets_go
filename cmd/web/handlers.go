@@ -1,12 +1,13 @@
 package main
 
 import (
+	"calenwu.com/snippetbox/pkg/forms"
+	"calenwu.com/snippetbox/pkg/models"
 	"fmt"
 	"github.com/go-chi/chi"
 	"net/http"
+	"net/url"
 	"strconv"
-
-	"calenwu.com/snippetbox/pkg/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +46,11 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.gohtml", &templateData{s})
 }
 
+type CreateSnippetTemplateData struct {
+	FormErrors map[string]string
+	FormData   url.Values
+}
+
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -53,10 +59,20 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 	// http.MaxBytesReader()
 	// r.PostForm["title"] does the same thing
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expires, _ := strconv.Atoi(r.PostForm.Get("expires"))
-	id, err := app.snippets.Insert(title, content, expires)
+	form := forms.New(r.PostForm)
+	form.Required([]string{"title", "content", "expires"})
+	form.MaxLength([]string{"title"}, 100)
+	form.PermittedValues([]string{"expires"}, "1", "7", "365")
+	if !form.Valid() {
+		app.render(w, r, "create.page.gohtml", form)
+		return
+	}
+	expires := r.PostForm.Get("expires")
+	expiresInt, _ := strconv.Atoi(expires)
+	id, err := app.snippets.Insert(
+		r.PostForm.Get("title"),
+		r.PostForm.Get("content"),
+		expiresInt)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -65,5 +81,6 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnippetForm(w  http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.gohtml", nil)
+	//Form: forms.New(nil),
+	app.render(w, r, "create.page.gohtml", forms.New(nil))
 }
