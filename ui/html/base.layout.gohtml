@@ -16,6 +16,13 @@
             <a href='/snippet/create'>Create snippet</a>
         </nav>
         <section>
+            {{with .Global.Flashes}}
+                {{range .}}
+                    <div class='flash'>
+                        {{.}}
+                    </div>
+                {{end}}
+            {{end}}
             {{template "body" .}}
         </section>
         <div>

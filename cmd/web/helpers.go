@@ -14,6 +14,7 @@ type TemplateData struct {
 }
 type GlobalData struct {
 	CurrentYear int
+	Flashes     []interface{}
 }
 
 // The serverError helper writes an error message and stack trace to the errorLo
@@ -38,7 +39,11 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td interface{}) {
+func (app *application) render(
+	w http.ResponseWriter,
+	r *http.Request,
+	name string,
+	td interface{}) {
 	// Retrieve the appropriate template set from the cache based on the page n
 	// (like 'home.page.tmpl'). If no entry exists in the cache with the
 	// provided name, call the serverError helper method that we made earlier.
@@ -50,12 +55,21 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	buf := new(bytes.Buffer)
 
 	// Execute the template set, passing in any dynamic data.
-	err := ts.Execute(
+	session, err := app.session.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	global := GlobalData{
+		CurrentYear: time.Now().Year(),
+		Flashes: session.Flashes(),
+	}
+
+	err = ts.Execute(
 		buf,
 		&TemplateData{
-			Global: GlobalData{
-				time.Now().Year(),
-			},
+			Global: global,
 			Local: td,
 		},
 	)
@@ -63,5 +77,6 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 		app.serverError(w, err)
 		return
 	}
+	session.Save(r, w)
 	buf.WriteTo(w)
 }

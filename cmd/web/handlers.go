@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/go-chi/chi"
 	"net/http"
-	"net/url"
 	"strconv"
 )
 
@@ -46,11 +45,6 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.gohtml", &templateData{s})
 }
 
-type CreateSnippetTemplateData struct {
-	FormErrors map[string]string
-	FormData   url.Values
-}
-
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -77,6 +71,19 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+
+	session, err := app.session.Get(r, "session-name")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	session.AddFlash("Your snippet has been created")
+	err = session.Save(r, w)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
 

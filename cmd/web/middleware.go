@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/sessions"
 	"net/http"
 )
 
@@ -27,6 +28,21 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				w.Header().Set("Connection", "close")
 				fmt.Fprintf(w, "Showing custom page")
 			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
+
+func (app *application) sessionMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			session, err := app.session.Get(r, "session-name")
+			if err != nil {
+				return
+			}
+			session.Values["test"] = "test"
+			err = sessions.Save(r, w)
 		}()
 		next.ServeHTTP(w, r)
 	})
