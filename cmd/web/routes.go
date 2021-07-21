@@ -16,7 +16,6 @@ func (app *application) routes() http.Handler {
 		app.logRequest,
 		app.sessionMiddleware,
 		secureHeaders)
-
 	// Create a new middleware chain containing the middleware specific to
 	// out dynamic application routes. For now, this chain will only contain
 	// the session middleware but we'll add more to it later.
@@ -24,9 +23,16 @@ func (app *application) routes() http.Handler {
 	mux := chi.NewRouter()
 	mux.Get("/", app.home)
 	mux.Get("/snippet", app.showSnippet)
-	mux.Get("/snippet/create", app.createSnippetForm)
-	mux.Post("/snippet/create", app.createSnippet)
+	mux.With(app.requireAuthenticatedUser).Get("/snippet/create", app.createSnippetForm)
+	mux.With(app.requireAuthenticatedUser).Post("/snippet/create", app.createSnippet)
 	mux.Get("/snippet/{id}", app.showSnippet)
+
+	// User
+	mux.Get("/user/signup", app.signupUserForm)
+	mux.Post("/user/signup", app.signupUser)
+	mux.Get("/user/login", app.loginUserForm)
+	mux.Post("/user/login", app.loginUser)
+	mux.Post("/user/logout", app.logoutUser)
 
 	FileServer(mux, "/static", http.Dir("./ui/static/"))
 	return standardMiddleware.Then(mux)

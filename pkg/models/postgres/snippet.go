@@ -36,7 +36,7 @@ func (m *SnippetModel) InsertNewSnippet(title, content string, expires int) (int
 // Get This will return a specific snippet based on its id.
 func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets
-		WHERE expires > current_timestamp AND id = $1`
+		WHERE expires > current_timestamp AND id = $1;`
 	s := &models.Snippet{}
 	row := m.DB.QueryRow(stmt, id)
 	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)

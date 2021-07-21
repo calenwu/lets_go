@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strconv"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type TemplateData struct {
 type GlobalData struct {
 	CurrentYear int
 	Flashes     []interface{}
+	UserID      int
 }
 
 // The serverError helper writes an error message and stack trace to the errorLo
@@ -63,14 +65,15 @@ func (app *application) render(
 
 	global := GlobalData{
 		CurrentYear: time.Now().Year(),
-		Flashes: session.Flashes(),
+		Flashes:     session.Flashes(),
+		UserID:      app.authenticatedUser(r),
 	}
 
 	err = ts.Execute(
 		buf,
 		&TemplateData{
 			Global: global,
-			Local: td,
+			Local:  td,
 		},
 	)
 	if err != nil {
@@ -79,4 +82,13 @@ func (app *application) render(
 	}
 	session.Save(r, w)
 	buf.WriteTo(w)
+}
+
+func (app *application) authenticatedUser(r *http.Request) int {
+	session, _ := app.session.Get(r, "session-name")
+	id, err := strconv.Atoi(fmt.Sprintf("%d", session.Values["userID"]))
+	if err != nil {
+		return -1
+	}
+	return id
 }

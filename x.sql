@@ -17,3 +17,12 @@ INSERT INTO snippets (title, content, created, expires) VALUES (
     current_timestamp,
     current_timestamp + INTERVAL '365 day'
 );
+
+CREATE TABLE users (
+    id SERIAL NOT NULL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    hashed_password CHAR(60) NOT NULL,
+    created timestamp NOT NULL
+)
+

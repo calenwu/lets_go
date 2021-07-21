@@ -2,7 +2,9 @@ package forms
 
 import (
 	"fmt"
+	"net/mail"
 	"net/url"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -24,6 +26,36 @@ func (f *Form) Required(fields []string) {
 		value := f.Get(field)
 		if strings.TrimSpace(value) == "" {
 			f.Errors.Add(field, "This field cannot be blank")
+		}
+	}
+}
+
+func (f *Form) MinLength(fields []string, d int) {
+	for _, field := range fields {
+		value := f.Get(field)
+		if value == "" {
+			return
+		}
+		if utf8.RuneCountInString(value) < d {
+			f.Errors.Add(field, fmt.Sprintf("This field is too short (minimum is %d)", d))
+		}
+	}
+}
+
+func (f *Form) MatchesPattern(fields []string, pattern *regexp.Regexp) {
+	for _, field := range fields {
+		value := f.Get(field)
+		if !pattern.MatchString(value) {
+			f.Errors.Add(field, "This field is invalid")
+		}
+	}
+}
+
+func (f *Form) IsEmail(fields []string) {
+	for _, field := range fields {
+		_, err := mail.ParseAddress(f.Get(field))
+		if err != nil {
+			f.Errors.Add(field, "This field is not an email")
 		}
 	}
 }

@@ -30,6 +30,7 @@ type application struct {
 	session       *sessions.CookieStore
 	snippets      *postgres.SnippetModel
 	templateCache map[string]*template.Template
+	users         *postgres.UserModel
 }
 
 type Config struct {
@@ -67,26 +68,27 @@ func main() {
 
 	session := sessions.NewCookieStore([]byte(*secret))
 
-	tlsConfig := & tls.Config{
+	tlsConfig := &tls.Config{
 		PreferServerCipherSuites: true,
-		CurvePreferences: [] tls.CurveID{tls.X25519, tls.CurveP256},
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 
 	app := &application{
 		infoLog:       infoLog,
 		errorLog:      errorLog,
-		snippets:      &postgres.SnippetModel{DB: db},
 		templateCache: templateCache,
 		session:       session,
+		snippets:      &postgres.SnippetModel{DB: db},
+		users:         &postgres.UserModel{DB: db},
 	}
 
 	srv := &http.Server{
-		Addr:     cfg.Addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
-		TLSConfig: tlsConfig,
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		Addr:         cfg.Addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 

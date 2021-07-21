@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/sessions"
+	"github.com/justinas/nosurf"
 	"net/http"
 )
 
@@ -33,7 +34,6 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-
 func (app *application) sessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -47,4 +47,25 @@ func (app *application) sessionMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.authenticatedUser(r) == -1 {
+			http.Redirect(w, r, "/user/login", 302)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+	return csrfHandler
+}
+
 
