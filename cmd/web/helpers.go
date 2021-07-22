@@ -2,22 +2,14 @@ package main
 
 import (
 	"bytes"
+	"calenwu.com/snippetbox/pkg/models"
 	"fmt"
 	"net/http"
 	"runtime/debug"
-	"strconv"
 	"time"
-)
 
-type TemplateData struct {
-	Global interface{}
-	Local  interface{}
-}
-type GlobalData struct {
-	CurrentYear int
-	Flashes     []interface{}
-	UserID      int
-}
+	"github.com/justinas/nosurf"
+)
 
 // The serverError helper writes an error message and stack trace to the errorLo
 // then sends a generic 500 Internal Server Error response to the user.
@@ -66,7 +58,8 @@ func (app *application) render(
 	global := GlobalData{
 		CurrentYear: time.Now().Year(),
 		Flashes:     session.Flashes(),
-		UserID:      app.authenticatedUser(r),
+		User:      app.authenticatedUser(r),
+		CsrfToken:   nosurf.Token(r),
 	}
 
 	err = ts.Execute(
@@ -84,11 +77,10 @@ func (app *application) render(
 	buf.WriteTo(w)
 }
 
-func (app *application) authenticatedUser(r *http.Request) int {
-	session, _ := app.session.Get(r, "session-name")
-	id, err := strconv.Atoi(fmt.Sprintf("%d", session.Values["userID"]))
-	if err != nil {
-		return -1
+func (app *application) authenticatedUser(r *http.Request) *models.User {
+	user, ok := r.Context().Value(contextKeyUser).(*models.User)
+	if !ok {
+		return nil
 	}
-	return id
+	return user
 }

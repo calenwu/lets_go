@@ -15,24 +15,26 @@ func (app *application) routes() http.Handler {
 		app.recoverPanic,
 		app.logRequest,
 		app.sessionMiddleware,
+		app.authenticate,
 		secureHeaders)
+
 	// Create a new middleware chain containing the middleware specific to
 	// out dynamic application routes. For now, this chain will only contain
 	// the session middleware but we'll add more to it later.
 
 	mux := chi.NewRouter()
-	mux.Get("/", app.home)
-	mux.Get("/snippet", app.showSnippet)
-	mux.With(app.requireAuthenticatedUser).Get("/snippet/create", app.createSnippetForm)
-	mux.With(app.requireAuthenticatedUser).Post("/snippet/create", app.createSnippet)
-	mux.Get("/snippet/{id}", app.showSnippet)
+	mux.With(noSurf).Get("/", app.home)
+	mux.With(noSurf).Get("/snippet", app.showSnippet)
+	mux.With(noSurf, app.requireAuthenticatedUser).Get("/snippet/create", app.createSnippetForm)
+	mux.With(noSurf, app.requireAuthenticatedUser).Post("/snippet/create", app.createSnippet)
+	mux.With(noSurf).Get("/snippet/{id}", app.showSnippet)
 
 	// User
-	mux.Get("/user/signup", app.signupUserForm)
-	mux.Post("/user/signup", app.signupUser)
-	mux.Get("/user/login", app.loginUserForm)
-	mux.Post("/user/login", app.loginUser)
-	mux.Post("/user/logout", app.logoutUser)
+	mux.With(noSurf).Get("/user/signup", app.signupUserForm)
+	mux.With(noSurf).Post("/user/signup", app.signupUser)
+	mux.With(noSurf).Get("/user/login", app.loginUserForm)
+	mux.With(noSurf).Post("/user/login", app.loginUser)
+	mux.With(noSurf).Post("/user/logout", app.logoutUser)
 
 	FileServer(mux, "/static", http.Dir("./ui/static/"))
 	return standardMiddleware.Then(mux)
@@ -45,13 +47,11 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	if strings.ContainsAny(path, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
 	}
-
 	if path != "/" && path[len(path)-1] != '/' {
 		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
 		path += "/"
 	}
 	path += "*"
-
 	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")

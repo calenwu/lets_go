@@ -24,6 +24,10 @@ const (
 	dbname   = "snippetbox"
 )
 
+type contextKey string
+
+var contextKeyUser = contextKey("user")
+
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
@@ -92,7 +96,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	infoLog.Printf("Starting server on %", srv.Addr)
+	infoLog.Printf("Starting server on %s", srv.Addr)
 	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }

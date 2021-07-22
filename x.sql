@@ -26,3 +26,8 @@ CREATE TABLE users (
     created timestamp NOT NULL
 )
 
+use
+\connect DBNAME
+
+
+

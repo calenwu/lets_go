@@ -1,13 +1,29 @@
 package main
 
 import (
+	"calenwu.com/snippetbox/pkg/models"
 	"html/template"
 	"path/filepath"
 	"time"
 )
 
+type TemplateData struct {
+	Global interface{}
+	Local  interface{}
+}
+
+type GlobalData struct {
+	CsrfToken   string
+	CurrentYear int
+	Flashes     []interface{}
+	User        *models.User
+}
+
 func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006  at 15:04")
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
 var functions = template.FuncMap{
