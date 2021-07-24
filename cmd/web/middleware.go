@@ -39,12 +39,14 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 func (app *application) sessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			session, err := app.session.Get(r, "session-name")
-			if err != nil {
-				return
+			if app.session != nil {
+				session, err := app.session.Get(r, "session-name")
+				if err != nil {
+					return
+				}
+				session.Values["test"] = "test"
+				err = sessions.Save(r, w)
 			}
-			session.Values["test"] = "test"
-			err = sessions.Save(r, w)
 		}()
 		next.ServeHTTP(w, r)
 	})

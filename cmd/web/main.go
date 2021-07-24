@@ -1,6 +1,7 @@
 package main
 
 import (
+	"calenwu.com/snippetbox/pkg/models"
 	"crypto/tls"
 	"database/sql"
 	"flag"
@@ -32,9 +33,17 @@ type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	session       *sessions.CookieStore
-	snippets      *postgres.SnippetModel
+	snippets      interface {
+		Insert(string, string, int) (int, error)
+		Get(int) (*models.Snippet, error)
+		Latest() ([]*models.Snippet, error)
+	}
 	templateCache map[string]*template.Template
-	users         *postgres.UserModel
+	users         interface {
+		Insert(string, string, string) error
+		Authenticate(string, string) (int, error)
+		Get(int) (*models.User, error)
+	}
 }
 
 type Config struct {

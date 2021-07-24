@@ -5,24 +5,23 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi"
-	"github.com/justinas/alice"
 )
 
 func (app *application) routes() http.Handler {
 	// Create a middleware chain containing our 'standard' middleware
 	// which will be used for every request our application receives.
-	standardMiddleware := alice.New(
-		app.recoverPanic,
-		app.logRequest,
-		app.sessionMiddleware,
-		app.authenticate,
-		secureHeaders)
 
 	// Create a new middleware chain containing the middleware specific to
 	// out dynamic application routes. For now, this chain will only contain
 	// the session middleware but we'll add more to it later.
-
 	mux := chi.NewRouter()
+	mux.Use(app.recoverPanic)
+	mux.Use(app.logRequest)
+	mux.Use(app.sessionMiddleware)
+	mux.Use(app.authenticate)
+	mux.Use(secureHeaders)
+
+	mux.Get("/ping", ping)
 	mux.With(noSurf).Get("/", app.home)
 	mux.With(noSurf).Get("/snippet", app.showSnippet)
 	mux.With(noSurf, app.requireAuthenticatedUser).Get("/snippet/create", app.createSnippetForm)
@@ -37,7 +36,8 @@ func (app *application) routes() http.Handler {
 	mux.With(noSurf).Post("/user/logout", app.logoutUser)
 
 	FileServer(mux, "/static", http.Dir("./ui/static/"))
-	return standardMiddleware.Then(mux)
+
+	return mux
 }
 
 

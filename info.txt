@@ -1,0 +1,11 @@
+run after having test files:
+go run cmd/web/!(*_test).go
+
+run specific tests:
+go test -v -run="^TestPing$" ./cmd/web/
+
+run specific sub tests:
+go test -v -run="^TestHumanDate$/^UTC|CET$" ./cmd/web
+
+running tests in parallel:
+add t.Parallel() to the beginning of the function
