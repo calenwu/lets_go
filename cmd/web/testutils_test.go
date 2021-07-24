@@ -1,6 +1,7 @@
 package main
 
 import (
+	"calenwu.com/snippetbox/pkg/models/mock"
 	"github.com/gorilla/sessions"
 	"io/ioutil"
 	"log"
@@ -11,7 +12,7 @@ import (
 )
 
 func newTestApplication(t *testing.T) *application {
-	templateCache, err := newTemplateCache("./../../ui/html")
+	templateCache, err := newTemplateCache("./ui/html")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,7 +21,9 @@ func newTestApplication(t *testing.T) *application {
 		errorLog:      log.New(ioutil.Discard, "", 0),
 		infoLog:       log.New(ioutil.Discard, "", 0),
 		session:       session,
+		snippets:      &mock.SnippetModel{},
 		templateCache: templateCache,
+		users:         &mock.UserModel{},
 	}
 }
 

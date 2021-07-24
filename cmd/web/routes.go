@@ -40,7 +40,6 @@ func (app *application) routes() http.Handler {
 	return mux
 }
 
-
 // FileServer conveniently sets up a http.FileServer handler to serve
 // static files from a http.FileSystem.
 func FileServer(r chi.Router, path string, root http.FileSystem) {
