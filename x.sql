@@ -1,4 +1,6 @@
-snippetbox=# INSERT INTO snippets (title, content, created, expires) VALUES (
+CREATE DATABASE test_snippetbox ENCODING utf8;
+CREATE USER test_web WITH PASSWORD 'pass';
+INSERT INTO snippets (title, content, created, expires) VALUES (
     'An old silent pond',
     'An old silent pond...\nA frog jumps into the pond,\nsplash! Silence again.',
     current_timestamp,
@@ -28,6 +30,8 @@ CREATE TABLE users (
 
 use
 \connect DBNAME
+show tables:
+\d or \dt
 
 
 
